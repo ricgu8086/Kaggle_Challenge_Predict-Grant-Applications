@@ -3,7 +3,8 @@ library(functional)
 library(randomForest)
 
 
-data <- read.csv("unimelb_training.txt", na.strings=c("NA", ""), as.is=TRUE, strip.white = TRUE)
+data <- read.csv(".//Data//text//unimelb_training.txt", na.strings=c("NA", ""), as.is=TRUE, strip.white = TRUE)
+
 
 # RFCD = Department
 # SEO = Socioeconomic Objective
@@ -73,8 +74,15 @@ for (cat in Contract.Bands){
 }
 
 
-#### DON'T forget to turn Strings into FACTORS!!!
+## Turn Charaters into factors
+for (column in names(data2)){
+  if (is.character(data2[column])) data2[column] <- as.factor(data2[column])
+}
 
+
+
+###### IMPORTANT: SEO Codes had a regime shift
+##### MUSS NOCH ANGEPASST WERDEN
 
 
 # Get the Main Departments and socio-economic Objectives
@@ -112,24 +120,29 @@ for (name in seo.names){
                                (data2["SEO.Code.4.Main"] == seo.num) * data2["SEO.Percentage.4"],
                                (data2["SEO.Code.5.Main"] == seo.num) * data2["SEO.Percentage.5"]), na.rm=TRUE)
 }
-#head(data2 %>% select(starts_with("SEO"), starts_with("Seob.")))
-
-
-for (column in names(data2)){
-  if (is.character(data2[column])) data2[column] <- as.factor(data2[column])
-}
 
 
 
 
+## Training, Testing und Validation Split
+test_id <- unlist(read.csv(".//Data//text//training2_ids.txt", na.strings=c("NA", ""), as.is=TRUE, strip.white = TRUE))
+validation_id <- unlist(read.csv(".//Data//text//testing_ids.txt", na.strings=c("NA", ""), as.is=TRUE, strip.white = TRUE))
 
-
-
-
+data2["Set_ID"] <- "Training"
+data2$Set_ID[test_id] <- "Testing"
+data2$Set_ID[validation_id] <- "Validation"
 
 data_cleaned <- data2
-# The cleaned data ist named data2
 save(data_cleaned, file="cleaned_all.RData")
+
+
+
+
+
+
+
+
+
 
 # 
 # # First shitty logistic Regression Models
