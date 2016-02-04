@@ -115,7 +115,9 @@ for (name in seo.names){
 #head(data2 %>% select(starts_with("SEO"), starts_with("Seob.")))
 
 
-
+for (column in names(data2)){
+  if (is.character(data2[column])) data2[column] <- as.factor(data2[column])
+}
 
 
 
