@@ -58,9 +58,9 @@ for (name in seo.names){
 }
 #head(data2 %>% select(starts_with("SEO"), starts_with("Seob.")))
 
-
+data_cleaned <- data2
 # The cleaned data ist named data2
-save(data2, file="cleaned_all.RData")
+save(data_cleaned, file="cleaned_all.RData")
 
 # 
 # # First shitty logistic Regression Models
