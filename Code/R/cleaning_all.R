@@ -76,7 +76,10 @@ for (cat in Contract.Bands){
 
 ## Turn Charaters into factors
 for (column in names(data2)){
-  if (is.character(data2[column])) data2[column] <- as.factor(data2[column])
+  if (is.character(unlist(data2[column])) == TRUE) {
+    print(column)
+    data2[column] <- as.factor(unlist(data2[column]))
+  }
 }
 
 
@@ -131,36 +134,15 @@ validation_id <- unlist(read.csv(".//Data//text//testing_ids.txt", na.strings=c(
 data2["Set_ID"] <- "Training"
 data2$Set_ID[test_id] <- "Testing"
 data2$Set_ID[validation_id] <- "Validation"
+data2$Set_ID <- as.factor(data2$Set_ID)
+
+
 
 data_cleaned <- data2
-save(data_cleaned, file="cleaned_all.RData")
+save(data_cleaned, file=".//Data//RData//cleaned_all.RData")
 
 
 
 
 
 
-
-
-
-
-# 
-# # First shitty logistic Regression Models
-# data_logit <- data2 %>% select(Grant.Status, starts_with("Dep."))
-# logit <- glm(Grant.Status ~ ., data = data_logit, family = "binomial")
-# 
-# data_logit2 <- data2 %>% select(Grant.Status, starts_with("Seob."))
-# logit2 <- glm(Grant.Status ~., data = data_logit2, family="binomial")
-# 
-# 
-# # Random Forest
-# set.seed(99998)
-# variables.rf <- colnames(select(data2, starts_with("Dep."), starts_with("Seob.")))
-# 
-# data_rf <- data2[c("Grant.Status", variables.rf)]
-# rf <- randomForest(Grant.Status ~., data=data_rf)
-# pred_rf <- predict(rf, data_rf)
-# t_rf <- table(data_rf$Grant.Status, pred_rf)
-# print(t_rf)
-# acc <- (t_rf[1,1] + t_rf[2,2])/sum(t_rf)
-# print(acc)
