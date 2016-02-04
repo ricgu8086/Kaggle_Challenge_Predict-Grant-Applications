@@ -138,6 +138,9 @@ data2$Set_ID <- as.factor(data2$Set_ID)
 
 
 
+
+
+
 data_cleaned <- data2
 save(data_cleaned, file=".//Data//RData//cleaned_all.RData")
 
