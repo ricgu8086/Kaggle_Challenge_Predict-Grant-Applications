@@ -3,7 +3,6 @@ library(functional)
 library(randomForest)
 
 
-setwd(".//Minicompetition")
 data <- read.csv("unimelb_training.txt")
 
 # RFCD = Department
@@ -57,29 +56,29 @@ for (name in seo.names){
                                (data2["SEO.Code.4.Main"] == seo.num) * data2["SEO.Percentage.4"],
                                (data2["SEO.Code.5.Main"] == seo.num) * data2["SEO.Percentage.5"]), na.rm=TRUE)
 }
-head(data2 %>% select(starts_with("SEO"), starts_with("Seob.")))
+#head(data2 %>% select(starts_with("SEO"), starts_with("Seob.")))
 
 
 # The cleaned data ist named data2
+save(data2, file="cleaned_all.RData")
 
-
-
-# First shitty logistic Regression Models
-data_logit <- data2 %>% select(Grant.Status, starts_with("Dep."))
-logit <- glm(Grant.Status ~ ., data = data_logit, family = "binomial")
-
-data_logit2 <- data2 %>% select(Grant.Status, starts_with("Seob."))
-logit2 <- glm(Grant.Status ~., data = data_logit2, family="binomial")
-
-
-# Random Forest
-set.seed(99998)
-variables.rf <- colnames(select(data2, starts_with("Dep."), starts_with("Seob.")))
-
-data_rf <- data2[c("Grant.Status", variables.rf)]
-rf <- randomForest(Grant.Status ~., data=data_rf)
-pred_rf <- predict(rf, data_rf)
-t_rf <- table(data_rf$Grant.Status, pred_rf)
-print(t_rf)
-acc <- (t_rf[1,1] + t_rf[2,2])/sum(t_rf)
-print(acc)
+# 
+# # First shitty logistic Regression Models
+# data_logit <- data2 %>% select(Grant.Status, starts_with("Dep."))
+# logit <- glm(Grant.Status ~ ., data = data_logit, family = "binomial")
+# 
+# data_logit2 <- data2 %>% select(Grant.Status, starts_with("Seob."))
+# logit2 <- glm(Grant.Status ~., data = data_logit2, family="binomial")
+# 
+# 
+# # Random Forest
+# set.seed(99998)
+# variables.rf <- colnames(select(data2, starts_with("Dep."), starts_with("Seob.")))
+# 
+# data_rf <- data2[c("Grant.Status", variables.rf)]
+# rf <- randomForest(Grant.Status ~., data=data_rf)
+# pred_rf <- predict(rf, data_rf)
+# t_rf <- table(data_rf$Grant.Status, pred_rf)
+# print(t_rf)
+# acc <- (t_rf[1,1] + t_rf[2,2])/sum(t_rf)
+# print(acc)
