@@ -16,6 +16,8 @@ team_data <- read.csv(path_team, na.strings=c("NA", ""), as.is=TRUE, strip.white
 
 data_all <- cbind(data_cleaned, team_data)
 
+data_all$Start.date <- as.POSIXct(as.Date(data2$Start.date, "%d/%m/%y"))
+
 # Splitting the data
 train <- filter(data_all, Set_ID == "Training")
 test <- filter(data_all, Set_ID == "Testing")
@@ -105,7 +107,7 @@ plot(tree.perf,main=paste("ROC Curve for Random Forest\n", "AUC = ", round(auc,3
 abline(a=0,b=1,lwd=2,lty=2,col="gray")
 
 # Best Model so far
-save(tree, file=".//..//..//Data//RData//tree87.RData")
+save(tree, file=".//..//..//Data//RData//tree91.RData")
 
 
 
