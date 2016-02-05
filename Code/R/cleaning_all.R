@@ -3,7 +3,7 @@ library(functional)
 library(randomForest)
 
 
-data <- read.csv(".//Data//text//unimelb_training.txt", na.strings=c("NA", ""), as.is=TRUE, strip.white = TRUE)
+data <- read.csv(".//..//..//Data//text//unimelb_training.txt", na.strings=c("NA", ""), as.is=TRUE, strip.white = TRUE)
 
 
 # RFCD = Department
@@ -24,9 +24,14 @@ data2[colnames.zero][data2[colnames.zero] == 0] <- NA
 #Rename Contract.Value.Band
 data2 <- rename(data2, Contract.Value.Band = Contract.Value.Band...see.note.A)
 
-# Check for NAs per column
-head(colSums(is.na(data2)))
 
+# Check for NAs per column
+head(colSums(is.na(data2)), 10)
+
+# Format the dates
+data2$Start.date <- as.Date(data2$Start.date, "%d/%m/%y")
+data2$Weekday <- weekdays(data2$Start.date)
+data2$Month <- months(data2$Start.date)
 
 ### Replace Contract Value by random values distributed similar as the rest
 set.seed(23483846)
@@ -50,6 +55,7 @@ for (cat in Contract.Bands){
     data2$Grant.Category.Code[(data2$Contract.Value.Band == cat) & is.na(data2$Grant.Category.Code)] <- sample(unlist(dimnames(GCC.prop)[1]), size=sum(is.na(data2$Grant.Category.Code[data2$Contract.Value.Band == cat])), replace = TRUE, prob=as.vector(GCC.prop[,cat]))
   }
 }
+
 
 
 ### Replace Sponsor Code by artificial Sample Distribution of the Top-3 Sponsors
@@ -77,7 +83,6 @@ for (cat in Contract.Bands){
 ## Turn Charaters into factors
 for (column in names(data2)){
   if (is.character(unlist(data2[column])) == TRUE) {
-    print(column)
     data2[column] <- as.factor(unlist(data2[column]))
   }
 }
@@ -102,6 +107,18 @@ data2 <- mutate(data2, SEO.Code.3.Main = substr(SEO.Code.3,1,2))
 data2 <- mutate(data2, SEO.Code.4.Main = substr(SEO.Code.4,1,2))
 data2 <- mutate(data2, SEO.Code.5.Main = substr(SEO.Code.5,1,2))
 
+# The following is not neccesary
+# ### Replace NAs of RFCD.Code.1.Main similar distributed as the rest
+# RF.prop <- prop.table(table(data2$RFCD.Code.1.Main))
+# data2$RFCD.Code.1.Main[is.na(data2$RFCD.Code.1.Main)] <- base::sample(x=unlist(dimnames(RF.prop)), size=sum(is.na(data2$RFCD.Code.1.Main)), replace=TRUE, prob=as.vector(RF.prop))
+# data2$RFCD.Percentage.1[is.na(data2$RFCD.Percentage.1)] <- 100
+# 
+# # ### Replace NAs of SEO.Code.1.Main similar distributed as the rest
+# SEO.prop <- prop.table(table(data2$SEO.Code.1.Main))
+# data2$SEO.Code.1.Main[is.na(data2$SEO.Code.1.Main)] <- base::sample(x=unlist(dimnames(SEO.prop)), size=sum(is.na(data2$SEO.Code.1.Main)), replace=TRUE, prob=as.vector(SEO.prop))
+# data2$SEO.Percentage.1[is.na(data2$SEO.Percentage.1)] <- 100
+# 
+# 
 
 # Getting Percentages for each Department and each socio-economic Objective
 department.names <- factor(paste("Dep." ,(levels(factor(data$RFCD.Code.1 %>% substring(1,2)))), sep=""))
@@ -127,9 +144,10 @@ for (name in seo.names){
 
 
 
+
 ## Training, Testing und Validation Split
-test_id <- unlist(read.csv(".//Data//text//training2_ids.txt", na.strings=c("NA", ""), as.is=TRUE, strip.white = TRUE))
-validation_id <- unlist(read.csv(".//Data//text//testing_ids.txt", na.strings=c("NA", ""), as.is=TRUE, strip.white = TRUE))
+test_id <- unlist(read.csv(".//..//..//Data//text//training2_ids.txt", na.strings=c("NA", ""), as.is=TRUE, strip.white = TRUE))
+validation_id <- unlist(read.csv(".//..//..//Data//text//testing_ids.txt", na.strings=c("NA", ""), as.is=TRUE, strip.white = TRUE))
 
 data2["Set_ID"] <- "Training"
 data2$Set_ID[test_id] <- "Testing"
@@ -142,7 +160,7 @@ data2$Set_ID <- as.factor(data2$Set_ID)
 
 
 data_cleaned <- data2
-save(data_cleaned, file=".//Data//RData//cleaned_all.RData")
+save(data_cleaned, file=".cleaned_all.RData")
 
 
 
