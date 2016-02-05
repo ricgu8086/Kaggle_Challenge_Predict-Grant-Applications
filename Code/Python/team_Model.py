@@ -16,7 +16,7 @@ path_output = path_data + "teamTable.csv"
 ###############
 
 df = pd.read_csv(path_original, sep=",", low_memory=False)
-people_scores_df = pd.read_csv(path_people, low_memory=False)
+people_model_df = pd.read_csv(path_people)
 
 
 
@@ -106,10 +106,63 @@ def compute_perc(x):
 team_df[outp] = df[interest_cols].apply(compute_perc, axis =1)
 
 # Get a feature based on people scores for each team
-# TODO
-# By the moment just fill it with -1
-team_df["People.score"].fillna(-1, inplace=True)
 
+# Pre-processing Chris file
+#######
+
+# Remove unwanted columns
+people_columns = ["Garbage", "Person", "Coefficients"]
+people_model_df.columns = people_columns
+people_model_df = people_model_df[['Person', 'Coefficients']]
+
+# Remove unwanted rows
+indexes = people_model_df['Person'].apply(lambda x: True if x.startswith("Person.ID") else False)
+clean_people_model_df = people_model_df.loc[indexes, :].copy()
+
+# Normalizing scores
+a = clean_people_model_df['Coefficients']
+minim = np.min(a)
+maxim = np.max(a)
+a = (a-minim)/float(maxim-minim)
+clean_people_model_df['Coefficients'] = a
+
+# Cleaning IDs
+clean_people_model_df['Person'] = clean_people_model_df['Person'].apply(lambda x: x[11:])
+# The first 11 characters corresponds with "Person.ID1"
+
+# Now that we have a clean table, we need to compute the People.score feature
+
+# Computing People.score feature
+#####
+
+ids = clean_people_model_df['Person'].as_matrix().tolist()
+scores = clean_people_model_df['Coefficients'].as_matrix().tolist()
+
+otherscores = scores[-1]
+
+converter = dict(zip(ids, scores))
+# NAs and people not in converter share the value of the key Other
+
+inp =  "Person.ID"
+outp = "People.score"
+
+interest_cols = [inp+".%d" % x for x in range(1, 16)]
+df[interest_cols] = df[interest_cols].fillna("Other") #NAs done!!
+
+def rep(x):
+
+    l = []
+
+    for elem in x:
+            try:
+                l.append(converter[str(int(elem))])
+            except: # People.ID that are not in ids
+                l.append(otherscores)
+
+    return l
+
+b = df[interest_cols].apply(rep)
+team_df[outp] = b.apply(lambda x: np.sum(x), axis =1)
 
 # Done, saving
 ##############
