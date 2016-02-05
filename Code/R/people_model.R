@@ -64,7 +64,7 @@ densityplot(predict(c, type='link'))
 
 #d <- glm( `data_cleaned$Grant.Status` ~ ., family = binomial(link = 'logit'), data = na.omit(peopleA), control = list(maxit = 500))
 people$Year.of.Birth.1 <- as.integer(people$Year.of.Birth.1)
-d <- glm( y ~ ., family = binomial(link = 'logit'), data = na.omit(people))
+d <- glm( y ~ ., family = binomial(link = 'logit'), data = people)
 
 #model is d!!
 peopleCoefList = d$coefficients

@@ -3,6 +3,8 @@ library(dplyr)
 library(ROCR)
 library(e1071)
 library(xgboost)
+install.packages('ctree')
+install.packages('gbm')
 
 path_data = "./Data/RData/"
 path_original = paste(path_data, "cleaned_all.RData", sep="")
@@ -58,6 +60,12 @@ abline(a=0,b=1,lwd=2,lty=2,col="gray")
 
 
 
+variables <- colnames(dplyr::select(test, Grant.Status, Grant.Category.Code, Contract.Value.Band, starts_with("Dep."), starts_with("Seob."),
+                             A..papers, A.papers, B.papers, C.papers, Dif.countries, Number.people, PHD, Max.years.univ, Grants.succ,
+                             Grants.unsucc, Departments, Perc_non_australian, Season, SC.Group, Weekday, Month, Day.of.Month))
+
+
+test.rf <- select_(test, .dots = variables)
 #### SVM
 
 #train.svm <- mutate_each_(train, c())
@@ -67,9 +75,12 @@ XGboostTrain = data.matrix(train.rf[,!(names(train.rf) %in% 'Grant.Status')])
 XGy = matrix(data = train.rf$Grant.Status, ncol = 1)
 
 
-XGboostTest = data.matrix(train.rf[,!(names(train.rf) %in% 'Grant.Status')])
-XGyTest = matrix(data = train.rf$Grant.Status, ncol = 1)
-nround = 1000
+XGboostTest = data.matrix(test.rf[,!(names(test.rf) %in% 'Grant.Status')])
+XGyTest = matrix(data = test$Grant.Status, ncol = 1)
+
+nround = 10000
+
+
 
 param <- list("objective" = "binary:logistic",
               "eval_metric" = "error")
@@ -79,7 +90,12 @@ bst = xgboost(param=param, data = XGboostTrain, label = XGy, nrounds=nround)
 
 
 
-predict(bst, XGboostTest)
+XGresult = predict(bst, XGboostTest) 
+
+testVal = table(round(XGresult) == XGyTest) 
+testVal[2]/(testVal[1] + testVal[2])
+
+p
 
 cv.nround <- 5
 cv.nfold <- 10
