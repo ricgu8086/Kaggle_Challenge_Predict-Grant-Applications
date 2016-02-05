@@ -1,4 +1,4 @@
-load(file = '/data/RData/peopleTable.RData')
+load(file = './Data/RData/peopleTable.RData')
 library(speedglm)
 library('biglm')
 library(data.table)
@@ -62,10 +62,10 @@ save(toSave, file = 'firstRoundCoefficentz.RData')
 library(lattice)
 densityplot(predict(c, type='link'))
 
-d <- glm( `data_cleaned$Grant.Status` ~ ., family = binomial(link = 'logit'), data = na.omit(peopleA), control = list(maxit = 500))
-
-d <- glm( y ~ ., family = binomial(link = 'logit'), data = people)
+#d <- glm( `data_cleaned$Grant.Status` ~ ., family = binomial(link = 'logit'), data = na.omit(peopleA), control = list(maxit = 500))
+people$Year.of.Birth.1 <- as.integer(people$Year.of.Birth.1)
+d <- glm( y ~ ., family = binomial(link = 'logit'), data = na.omit(people))
 
 #model is d!!
 peopleCoefList = d$coefficients
-save(peopleCoefList, file = '/data/RData/peopleCoefs.RData')
+save(peopleCoefList, file = './Data/RData/peopleCoefs.RData')

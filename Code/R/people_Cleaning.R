@@ -3,7 +3,7 @@ library(dplyr)
 library(speedglm)
 library('biglm')
 
-load(file = '/data/RData/cleaned_all.RData')
+load(file = './Data/RData/cleaned_all.RData')
 
 ###---------Building People Table--------####
 #turn the cleaned table into just people
@@ -103,8 +103,8 @@ for (i in 1:length(ID2change)) {
 people$y = people$`data_cleaned$Grant.Status`
 people$`data_cleaned$Grant.Status` = NULL
 
-peopleWOther = people
-save(peopleWOther, file = '/data/RData/peopleTable.RData' )
-#save(people, file='/data/RData/peopleTable.RData')
+#peopleWOther = people
+save(people, file = './Data/RData/peopleTable.RData' )
+#save(people, file='./Data/RData/peopleTable.RData')
 
 
