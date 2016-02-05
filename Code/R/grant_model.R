@@ -38,7 +38,7 @@ validation$SC.Group <- as.numeric(tmp[,2][match(as.character(validation$Sponsor.
 ## Random Forest Model
 #list of all potential variables
 variables_all <- colnames(select(train, Grant.Status, Grant.Category.Code, Contract.Value.Band, starts_with("Dep."), starts_with("Seob."),
-               A..papers, A.papers, B.papers, C.papers, Dif.countries, Number.people, PHD, Max.years.univ, Grants.succ,
+               People.score, A..papers, A.papers, B.papers, C.papers, Dif.countries, Number.people, PHD, Max.years.univ, Grants.succ,
                Grants.unsucc, Departments, Perc_non_australian, Season, SC.Group, Weekday, Month, Day.of.Month))
 
 # Use all the variables
@@ -86,16 +86,14 @@ bestmtry <- tuneRF(train.rf[-1],train$Grant.Status, mtryStart = 7, ntreeTry=800,
 
 
 #### Final Tree trained on more Data
-train.tree <- select_(rbind(train, test), .dots = variables_filtered)
-tree <- randomForest(Grant.Status~., data=train.tree, ntree=2000, mtry = 7)
+train.tree <- select_(rbind(train, test), .dots = variables_all)
+tree <- randomForest(Grant.Status~., data=train.tree, ntree=3000, mtry = 7)
 
 # Accuracy
 tree.pred.class <- predict(tree, validation)
 t_tree <- table(validation$Grant.Status, tree.pred.class)
 tree.acc <- (t_tree[1,1] + t_tree[2,2])/sum(t_tree)
 cat("Accuracy over Validation set: ", tree.acc, "\n")
-
-
 
 #AUC
 tree.pr = predict(tree, type="prob", newdata=validation)[,2]
@@ -112,27 +110,35 @@ save(tree, file=".//..//..//Data//RData//tree87.RData")
 
 #### SVM
 # Select variables
-variables <- colnames(select(train, Grant.Status, Contract.Value.Band, C.papers))
-#variables = colnames(select(train, Grant.Status, Grant.Category.Code, Contract.Value.Band, starts_with("Dep."), starts_with("Seob."),
-                      #      A..papers, A.papers, B.papers, C.papers, Dif.countries, Number.people, PHD, Max.years.univ, Grants.succ,
-                       #     Grants.unsucc, Departments, Perc_non_australian, Season, SC.Group, Weekday, Month, Day.of.Month))
+#variables <- colnames(select(train, Grant.Status, Contract.Value.Band, C.papers))
+variables <- colnames(select(train, Grant.Status, Grant.Category.Code, Contract.Value.Band, starts_with("Dep."), starts_with("Seob."),
+                                 People.score, A..papers, A.papers, B.papers, C.papers, Dif.countries, Number.people, PHD, Max.years.univ, Grants.succ,
+                                 Grants.unsucc, Departments, Perc_non_australian, Season, SC.Group, Weekday, Month, Day.of.Month))
 train.svm.var <- select_(train, .dots = variables)
-
+test.svm.var <- select_(test, .dots = variables)
 
 # Scale Parameters
 num.names <- colnames(train.svm.var %>% select(which(sapply(.,is.numeric))))
 range01 <- function(x){(x-min(x))/(max(x)-min(x))}
 train.svm <- mutate_each_(train.svm.var, funs(range01),vars=num.names)
-
-svm <- svm(Grant.Status~., data=train.svm, cross=3)
-
+test.svm <- mutate_each_(test.svm.var, funs(range01),vars=num.names)
 
 
-t.svm <- table(test$Grant.Status, svm.pr)
+svm <- svm(Grant.Status~., data=train.svm, cross=3, probability=TRUE)
+
+
+svm.pr.class <- predict(svm, test.svm)
+t.svm <- table(test.svm$Grant.Status, svm.pr.class)
 svm.acc <- (t.svm[1,1] + t.svm[2,2])/sum(t.svm)
 cat("SVM Accuracy over test set: ", svm.acc, "\n")
 
 svm.pr.tr <- predict(svm, train.svm)
 t.svm.tr <- table(train.svm$Grant.Status, svm.pr.tr)
 svm.acc.tr <- (t.svm.tr[1,1] + t.svm.tr[2,2])/sum(t.svm.tr)
-cat("SVM Accuracy over test set: ", svm.acc.tr, "\n")
+cat("SVM Accuracy over training set: ", svm.acc.tr, "\n")
+
+#AUC
+svm.pr = predict(svm, type="prob", test.svm)[,2]
+svm.pred = prediction(svm.pr, test$Grant.Status)
+svm.perf = performance(svm.pred, "tpr", "fpr")
+svm.auc <- as.numeric(performance(svm.pred, "auc")@y.values)
