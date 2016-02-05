@@ -36,7 +36,7 @@ SC.Status <- cbind(SC.Status, cut(SC.Status[,3], 10))
 train.rf <- select(train, Grant.Status, Grant.Category.Code, Contract.Value.Band, starts_with("Dep."), starts_with("Seob."),
                    A..papers, A.papers, B.papers, C.papers, Dif.countries, Number.people, PHD, Max.years.univ, Grants.succ,
                    Grants.unsucc, Departments, Perc_non_australian)
-rf <- randomForest(Grant.Status~., data=train.rf, ntree=2000)
+rf <- randomForest(Grant.Status~., data=train.rf, ntree=1000)
 pred_rf <- predict(rf, test)
 t_rf <- table(test$Grant.Status, pred_rf)
 acc <- (t_rf[1,1] + t_rf[2,2])/sum(t_rf)
@@ -46,28 +46,3 @@ acc
 
 
 
-
-
-
-
-
-# 
-# # First shitty logistic Regression Models
-# data_logit <- data2 %>% select(Grant.Status, starts_with("Dep."))
-# logit <- glm(Grant.Status ~ ., data = data_logit, family = "binomial")
-# 
-# data_logit2 <- data2 %>% select(Grant.Status, starts_with("Seob."))
-# logit2 <- glm(Grant.Status ~., data = data_logit2, family="binomial")
-# 
-# 
-# # Random Forest
-# set.seed(99998)
-# variables.rf <- colnames(select(data2, starts_with("Dep."), starts_with("Seob.")))
-# 
-# data_rf <- data2[c("Grant.Status", variables.rf)]
-# rf <- randomForest(Grant.Status ~., data=data_rf)
-# pred_rf <- predict(rf, data_rf)
-# t_rf <- table(data_rf$Grant.Status, pred_rf)
-# print(t_rf)
-# acc <- (t_rf[1,1] + t_rf[2,2])/sum(t_rf)
-# print(acc)
