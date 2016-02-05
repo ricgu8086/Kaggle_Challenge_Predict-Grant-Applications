@@ -62,3 +62,43 @@ abline(a=0,b=1,lwd=2,lty=2,col="gray")
 
 #train.svm <- mutate_each_(train, c())
 
+
+XGboostTrain = data.matrix(train.rf[,!(names(train.rf) %in% 'Grant.Status')])
+XGy = matrix(data = train.rf$Grant.Status, ncol = 1)
+
+
+XGboostTest = data.matrix(train.rf[,!(names(train.rf) %in% 'Grant.Status')])
+XGyTest = matrix(data = train.rf$Grant.Status, ncol = 1)
+nround = 1000
+
+param <- list("objective" = "binary:logistic",
+              "eval_metric" = "error")
+
+bst = xgboost(param=param, data = XGboostTrain, label = XGy, nrounds=nround)
+
+
+
+
+predict(bst, XGboostTest)
+
+cv.nround <- 5
+cv.nfold <- 10
+nround <- 5000
+y =  matrix(data = y, ncol = 1)
+yTest =  matrix(data = yTest, ncol = 1)
+
+bst.cv = xgb.cv(param=param, data = xVarsTrain, label = y, 
+                nfold = cv.nfold, nrounds = cv.nround, verbose = 2)
+
+bst70split = xgboost(param=param, data = xVarsTrain, label = y, nrounds=nround)
+
+pred70 = predict(bst70split, xTest)
+
+
+predmatr = matrix(pred70, nrow = 16, ncol = nrow(yTest))
+
+table(max.col(t(predmatr)) != yTest)
+
+xgboost::xgb.save(bst70split,'bstMed1')
+
+
