@@ -168,7 +168,7 @@ team_df[outp] = b.apply(lambda x: np.sum(x), axis =1)
 
 # Get the average score so a big team with non-top researchers does not get more score than small with top ones
 team_df["Avg.People.score"] = team_df["People.score"] / team_df["Number.people"].astype(float)
-
+team_df["Avg.People.score"] = team_df["Avg.People.score"].replace(np.inf, 0)
 
 # Done, saving
 ##############
