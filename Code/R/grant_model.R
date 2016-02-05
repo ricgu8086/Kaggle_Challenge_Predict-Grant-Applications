@@ -16,7 +16,6 @@ team_data <- read.csv(path_team, na.strings=c("NA", ""), as.is=TRUE, strip.white
 
 data_all <- cbind(data_cleaned, team_data)
 
-data_all$Start.date <- as.POSIXct(as.Date(data_all$Start.date, "%d/%m/%y"))
 
 # Splitting the data
 train <- filter(data_all, Set_ID == "Training")
