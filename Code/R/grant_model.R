@@ -1,5 +1,7 @@
 library(randomForest)
 library(dplyr)
+library(ROCR)
+library(e1071)
 
 path_data = "..//..//Data//RData//"
 path_original = paste(path_data, "cleaned_all.RData", sep="")
@@ -32,20 +34,70 @@ validation$SC.Group <- as.numeric(tmp[,2][match(as.character(validation$Sponsor.
 
 
 
-## Simple Random Forest Model
-# Sponsor.Code has too many fators
-variables <- colnames(select(train, Grant.Status, Grant.Category.Code, Contract.Value.Band, starts_with("Dep."), starts_with("Seob."),
+## Random Forest Model
+#list of all potential variables
+variables_all <- colnames(select(train, Grant.Status, Grant.Category.Code, Contract.Value.Band, starts_with("Dep."), starts_with("Seob."),
                A..papers, A.papers, B.papers, C.papers, Dif.countries, Number.people, PHD, Max.years.univ, Grants.succ,
                Grants.unsucc, Departments, Perc_non_australian, Season, SC.Group, Weekday, Month, Day.of.Month))
 
+# Use all the variables
+train.rf_all <- select_(train, .dots = variables_all)
+rf_all <- randomForest(Grant.Status~., data=train.rf_all, ntree=1500)
+pred_rf_all <- predict(rf_all, test)
+conf_rf_all <- table(test$Grant.Status, pred_rf_all)
+acc_all <- (conf_rf_all[1,1] + conf_rf_all[2,2])/sum(conf_rf_all)
+acc_all
+importance <- rf_all$importance
 
-train.rf <- select(train, .dots = variables)
-rf <- randomForest(Grant.Status~., data=train.rf, ntree=1500)
+
+# filter variables by feature Importance
+variables_filtered <- c(variables_all[importance > 5])
+train.rf <- select_(train, .dots = variables_filtered)
+
+# Find boptimal numbers of Split-Variables at each node
+bestmtry <- tuneRF(train.rf[-1],train$Grant.Status, mtryStart = 7, ntreeTry=800, stepFactor=1.1, improve=0.001, trace=TRUE, plot=TRUE, doBest=FALSE)
+
+#Create tree
+rf <- randomForest(Grant.Status~., data=train.rf, ntree=3000, mtry = 7)
 pred_rf <- predict(rf, test)
 t_rf <- table(test$Grant.Status, pred_rf)
 acc <- (t_rf[1,1] + t_rf[2,2])/sum(t_rf)
 acc
 
+# Check for Overfitting
+pred_rf_train <- predict(rf, train.rf)
+t_rf <- table(train.rf$Grant.Status, pred_rf_train)
+acc_train <- (t_rf[1,1] + t_rf[2,2])/sum(t_rf)
+acc_train
+rf.pr = predict(rf, type="prob", newdata=train.rf)[,2]
+rf.pred = prediction(rf.pr, train.rf$Grant.Status)
+rf.perf = performance(rf.pred, "tpr", "fpr")
+auc <- as.numeric(performance(rf.pred, "auc")@y.values)
+
+plot(rf.perf,main=paste("ROC Curve for Random Forest\n", "AUC = ", round(auc,3)), col=2, lwd=2)
+abline(a=0,b=1,lwd=2,lty=2,col="gray")
 
 
+# Best Model so far
 save(rf.77, file=".//..//..//Data//RData//rf.77.RData")
+
+
+
+#### Tree ROC Curve
+tree <- rf
+
+tree.pr = predict(tree, type="prob", newdata=test)[,2]
+tree.pred = prediction(tree.pr, test$Grant.Status)
+tree.perf = performance(tree.pred, "tpr", "fpr")
+auc <- as.numeric(performance(tree.pred, "auc")@y.values)
+
+plot(tree.perf,main=paste("ROC Curve for Random Forest\n", "AUC = ", round(auc,3)), col=2, lwd=2)
+abline(a=0,b=1,lwd=2,lty=2,col="gray")
+
+
+
+
+#### SVM
+
+#train.svm <- mutate_each_(train, c())
+
