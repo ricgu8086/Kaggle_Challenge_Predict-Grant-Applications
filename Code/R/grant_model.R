@@ -38,7 +38,7 @@ validation$SC.Group <- as.numeric(tmp[,2][match(as.character(validation$Sponsor.
 ## Random Forest Model
 #list of all potential variables
 variables_all <- colnames(select(train, Grant.Status, Grant.Category.Code, Contract.Value.Band, starts_with("Dep."), starts_with("Seob."),
-               People.score, A..papers, A.papers, B.papers, C.papers, Dif.countries, Number.people, PHD, Max.years.univ, Grants.succ,
+               People.score,  Avg.People.score, A..papers, A.papers, B.papers, C.papers, Dif.countries, Number.people, PHD, Max.years.univ, Grants.succ,
                Grants.unsucc, Departments, Perc_non_australian, Season, SC.Group, Weekday, Month, Day.of.Month))
 
 # Use all the variables
@@ -108,11 +108,17 @@ abline(a=0,b=1,lwd=2,lty=2,col="gray")
 save(tree, file=".//..//..//Data//RData//tree87.RData")
 
 
+
+#------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
 #### SVM
 # Select variables
 #variables <- colnames(select(train, Grant.Status, Contract.Value.Band, C.papers))
 variables <- colnames(select(train, Grant.Status, Grant.Category.Code, Contract.Value.Band, starts_with("Dep."), starts_with("Seob."),
-                                 People.score, A..papers, A.papers, B.papers, C.papers, Dif.countries, Number.people, PHD, Max.years.univ, Grants.succ,
+                                 People.score, Avg.People.score, A..papers, A.papers, B.papers, C.papers, Dif.countries, Number.people, PHD, Max.years.univ, Grants.succ,
                                  Grants.unsucc, Departments, Perc_non_australian, Season, SC.Group, Weekday, Month, Day.of.Month))
 train.svm.var <- select_(train, .dots = variables)
 test.svm.var <- select_(test, .dots = variables)
@@ -124,15 +130,15 @@ train.svm <- mutate_each_(train.svm.var, funs(range01),vars=num.names)
 test.svm <- mutate_each_(test.svm.var, funs(range01),vars=num.names)
 
 
-svm <- svm(Grant.Status~., data=train.svm, cross=3, probability=TRUE)
+svm.model <- svm(Grant.Status~., data=train.svm, cross=3, probability=TRUE)
 
 
-svm.pr.class <- predict(svm, test.svm)
+svm.pr.class <- predict(svm, newdata=test.svm)
 t.svm <- table(test.svm$Grant.Status, svm.pr.class)
 svm.acc <- (t.svm[1,1] + t.svm[2,2])/sum(t.svm)
 cat("SVM Accuracy over test set: ", svm.acc, "\n")
 
-svm.pr.tr <- predict(svm, train.svm)
+svm.pr.tr <- predict(svm, newdata=train.svm)
 t.svm.tr <- table(train.svm$Grant.Status, svm.pr.tr)
 svm.acc.tr <- (t.svm.tr[1,1] + t.svm.tr[2,2])/sum(t.svm.tr)
 cat("SVM Accuracy over training set: ", svm.acc.tr, "\n")
