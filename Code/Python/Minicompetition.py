@@ -3,10 +3,12 @@ import numpy as np
 
 # Paths
 ########
+from matplotlib.finance import index_bar
+from sphinx.addnodes import index
 
 path_data = r"..\..\Data\text\\"
 path_original = path_data + "unimelb_training.txt"
-path_people = path_data + "peopleTable.csv"
+path_people = path_data + "peopleCoefs.csv"
 path_output = path_data + "teamTable.csv"
 
 
@@ -14,7 +16,7 @@ path_output = path_data + "teamTable.csv"
 ###############
 
 df = pd.read_csv(path_original, sep=",", low_memory=False)
-people_model_df = pd.read_csv(path_people, low_memory=False)
+people_scores_df = pd.read_csv(path_people, low_memory=False)
 
 
 
@@ -61,10 +63,10 @@ outp = "Max.years.univ"
 interest_cols = [inp+".%d" % x for x in range(1,16)]
 
 categories_of_years = pd.Series(df[interest_cols].values.ravel()).unique()
-year_converter = dict(zip(categories_of_years, [-1, 0, 20, 10, 5, 15]))
+year_converter = dict(zip(categories_of_years, [0, 0, 20, 10, 5, 15]))
 
 aux = df[interest_cols].replace(year_converter)
-team_df[outp] = aux.apply(lambda x: max(x), axis =1)
+team_df[outp] = aux.apply(lambda x: np.nansum(x), axis =1)
 
 
 # Get the number of successful grants per team
@@ -89,7 +91,7 @@ team_df[outp] = df[interest_cols].apply(lambda x: len(set(x[~x.isnull()])), axis
 # Get the percentage of non australian people (probably there are some grants
 # reserved for foreign people
 inp = "Country.of.Birth"
-outp = "Perc_non_australian" #From 0 to 1
+outp = "Perc_non_australian" # From 0 to 1
 interest_cols = [inp+".%d" % x for x in range(1,16)]
 
 def compute_perc(x):
@@ -102,12 +104,16 @@ def compute_perc(x):
     return australian/float(total)
     
 team_df[outp] = df[interest_cols].apply(compute_perc, axis =1)
+
+# Get a feature based on people scores for each team
+# TODO
+# By the moment just fill it with -1
 team_df["People.score"].fillna(-1, inplace=True)
 
 
 # Done, saving
 ##############
 
-team_df.to_csv(path_output)
+team_df.to_csv(path_output, index_label=False)
 print "Yataaa!!"  # In honor to Hiro Nakamura
 
