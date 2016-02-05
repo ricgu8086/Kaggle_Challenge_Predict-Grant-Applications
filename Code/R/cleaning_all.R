@@ -32,6 +32,9 @@ head(colSums(is.na(data2)), 10)
 data2$Start.date <- as.Date(data2$Start.date, "%d/%m/%y")
 data2$Weekday <- weekdays(data2$Start.date)
 data2$Month <- months(data2$Start.date)
+data2$Day.and.Month <- format(data2$Start.date, "%d %b")
+data2$Day.of.Month <- format(data2$Start.date, "%d")
+data2$Season <- quarters(data2$Start.date)
 
 ### Replace Contract Value by random values distributed similar as the rest
 set.seed(23483846)
@@ -160,7 +163,7 @@ data2$Set_ID <- as.factor(data2$Set_ID)
 
 
 data_cleaned <- data2
-save(data_cleaned, file=".cleaned_all.RData")
+save(data_cleaned, file=".//..//..//Data//RData//cleaned_all.RData")
 
 
 
