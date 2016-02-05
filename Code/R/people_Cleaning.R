@@ -104,7 +104,7 @@ people$y = people$`data_cleaned$Grant.Status`
 people$`data_cleaned$Grant.Status` = NULL
 
 peopleWOther = people
-save(peopleWOther, file = 'peopleWOtherTable.RData' )
-save(people, file='peopleTable.RData')
+save(peopleWOther, file = '/data/RData/peopleTable.RData' )
+#save(people, file='/data/RData/peopleTable.RData')
 
 
