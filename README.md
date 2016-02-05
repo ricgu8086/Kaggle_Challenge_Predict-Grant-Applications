@@ -17,7 +17,7 @@ This is a competition for Data Science Retreat program 2016 based on the followi
 
 We were divided into two teams, one with the students on the Data Science track and another with the students on the Data Engineer track. We had only 3 days for accomplish this challenge.
 
-Our solution consisted on creating a hierarchical model that combined features based on data of this three big groups found in the dataset
+Our solution consisted on creating a hierarchical model that combined features based on data of this 3 big groups found in the dataset
 
 1. People model
 2. Team model
@@ -25,3 +25,12 @@ Our solution consisted on creating a hierarchical model that combined features b
 
 
 As we are a multidisciplinar team, with different backgrounds (engineering, economics and finance), our expertise in programming language varies, thus, in order to maximize our throughput, each one used the language in which he felt more confortable (Python and R).
+
+
+----------
+
+
+***This is the result we get in just 3 days:***
+
+![ROC Curve, AUC = 0.914](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Model%20and%20Results/Rplot.png)
+
