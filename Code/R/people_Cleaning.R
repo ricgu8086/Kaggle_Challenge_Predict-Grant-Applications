@@ -3,7 +3,7 @@ library(dplyr)
 library(speedglm)
 library('biglm')
 
-load(file = '/data/RData/cleaned_all.RData')
+load(file = './Data/RData/cleaned_all.RData')
 
 ###---------Building People Table--------####
 #turn the cleaned table into just people
@@ -103,8 +103,40 @@ for (i in 1:length(ID2change)) {
 people$y = people$`data_cleaned$Grant.Status`
 people$`data_cleaned$Grant.Status` = NULL
 
-peopleWOther = people
-save(peopleWOther, file = '/data/RData/peopleTable.RData' )
-#save(people, file='/data/RData/peopleTable.RData')
+###change all NAs into either 0 or other cato 
+# [COULD LOOK AT CHANGING ZEROS IF TIME]
+peopleSafe = people
+
+namesList = names(people)
+
+namesList[1:length(namesList)-1] = namesList
+
+for (i in 1:length(names(people))) {
+  
+  
+  tempCol = eval(parse(text = paste('people', '$', namesList[i], sep = '')))
+  
+  if (is.factor(tempCol) == TRUE) {
+    
+    if ('OtherNA' %in% levels(tempCol) == FALSE) {
+      levels(tempCol) = c(levels(tempCol), 'OtherNA')
+    }
+    tempCol[is.na(tempCol)] = 'OtherNA'
+  }
+  
+  if ( is.numeric(tempCol) | is.integer(tempCol) == TRUE) {
+    tempCol[is.na(tempCol)] = 0
+    }
+  
+  print(paste(sum(is.na(tempCol)), '/', sum(is.na(people[namesList[i]]))))
+  
+  people[namesList[i]] = tempCol
+  print(i)
+}
+
+#peopleWOther = people
+save(people, file = './Data/RData/peopleTable.RData' )
+#save(people, file='./Data/RData/peopleTable.RData')
+
 
 
