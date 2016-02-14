@@ -32,7 +32,7 @@ As we are a multidisciplinar team, with different backgrounds (engineering, econ
 
 ***This is the result we got in just 3 days:***
 
-![ROC Curve, AUC = 0.914](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Model%20and%20Results/Rplot.png)
+![ROC plot and AUC = 0.914](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/ROC%20plot%20and%20AUC%20%3D%200.914.png)
 
 
 If you want to learn how we achieved it, [click here](http://ricgu8086.github.io/Kaggle_Challenge_Predict-Grant-Applications/)

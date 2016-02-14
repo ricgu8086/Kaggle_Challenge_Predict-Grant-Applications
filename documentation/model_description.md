@@ -104,11 +104,13 @@ If we had been able to train this model on the full training data, we might have
 
 ![ROC plot and AUC = 0.914](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/ROC%20plot%20and%20AUC%20%3D%200.914.png)
 
-![Screenshot of the public leaderboard](http://www.algo.com)
+Figure 3. ROC plot and AUC = 0.914.
 
-Figure 3. ROC plot and AUC = 0.914
+![Screenshot of the public leaderboard](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/public%20leaderboard.jpg)
 
-Table 1 shows the confusion matrix with the real values as rows and the predicted values as columns.
+Figure 4. Kaggle's public leaderboard for this challenge.
+
+The following table (Table 1) shows the confusion matrix with the real values as rows and the predicted values as columns.
 
  <table style="width:100%">
   <tr>
