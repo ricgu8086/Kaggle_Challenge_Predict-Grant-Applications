@@ -26,8 +26,11 @@
 
 <p>The original competition ran during the dates below.</p>
 
-<p>Started: 9:22 am, Monday 13 December 2010 UTC
-Ended: 10:00 pm, Sunday 20 February 2011 UTC (69 total days)</p>
+<blockquote>
+<p>Started: 9:22 am, Monday 13 December 2010 UTC</p>
+
+<p>Ended: 10:00 pm, Sunday 20 February 2011 UTC (69 total days)</p>
+</blockquote>
 
 <p>We however, completed our approach in a 3 day period.</p>
 
@@ -38,11 +41,31 @@ Ended: 10:00 pm, Sunday 20 February 2011 UTC (69 total days)</p>
 <p>This was an issue, as a model would be unable to find trends in data if variables were split across columns. So to combat this we decided to create two smaller models to sum up the information contained within each person and their team. The first being the people model and the second being the team model.</p>
 
 <h1>
+<a id="cleaning-the-data" class="anchor" href="#cleaning-the-data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Cleaning the Data</h1>
+
+<p>The original dataset from the University of Melbourne is formated quite ugly. There are 249 features, mainly because for every person working on a project there are 15 features describing this person and the maximium team size is 15 people. So 225 of the 249 features describe the people who created the application. As many application were created by teams much smaller than 15 people, most of the columns are filled very scarcely.</p>
+
+<p>These 225 features were handled in the People and the Team Model, so the <em>cleaning_all.r</em> file just takes care of the first 24 features.</p>
+
+<p>The date column was properly formated and these new features were derived from it: Weekday, Month, Day and Month, Day of Month and Season.</p>
+
+<p>As there was a significant amount of missing values in the dataset, we had to find way to deal with them.</p>
+
+<p>For the feature <em>Contract Value Band</em>, which is a factrorial variable classifying the contract value into 14 levels, we filled the missing data with random samples from an empirical distribution of the existing data.</p>
+
+<p>For the columns <em>Grant Category Code</em> and <em>Sponsor Code</em>, which are factorial variables as well, we were able to use a more accurate model. As both variables are significantly correlated with the <em>Contract Value Band</em>, we could use this information to create conditional empirical distributions for <em>Grant Category Code</em> and <em>Sponsor Code</em> depending on the <em>Contract Value Band</em>of the respective application.</p>
+
+<p>Each application has up to 5 <em>RFCD Codes</em>, which describe the university departments working on this project and up to 5 socioeconomic objectives in the <em>SEO Code</em> columns. For each of these ten columns there is an additional column showing the percentage of the project related to the respective department or socioeconomic objectve. As the majority of the applications have a maximum of two departments and SEOs, most of these features are empty.
+To be able to use this part of the data, we created columns for each possible department and socioeconomic objective, stating respected percentage. This method allows all parts to be displayed individually. instead of checking five different columns to see if the project is related to a certain department, you have to check just one. </p>
+
+<p>After the cleaning, the data was split into a training, a testing and a validation set.</p>
+
+<h1>
 <a id="splitting" class="anchor" href="#splitting" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Splitting</h1>
 
 <p>Because of the test data available lacked the <em>Grant.Status</em> field, i.e. the target we want to predict, we arrange our labeled data (training dataset) in the following way: in the first round,we take data from group 1 (see Figure 1) for training, and data from group 2 for validation (parameter tuning). After we achieved one model we were confident on it, we move to the second round, where we use data from group 1 and group 2 for training (keeping the same parameters learned) and used data from group 3 for testing. The predictions obtained in this group 3, are the results presented in the Results section.</p>
 
-<p>You can find the exact ids used to do the splitting in the following files:</p>
+<p>You can find the exact Grant IDs used to do the splitting in the following files:</p>
 
 <ol>
 <li><em>testing_ids.txt</em></li>
@@ -56,9 +79,9 @@ Ended: 10:00 pm, Sunday 20 February 2011 UTC (69 total days)</p>
 <h2>
 <a id="data-analysis" class="anchor" href="#data-analysis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data Analysis</h2>
 
-<p>The applicants talent to write a good application might influence the probability of success significantly, so we needed to find a way to measure this talent. The measure for this talent was called <em>People Score</em>. As there were more than 3000 different people working on the applications in the dataset, we decided analyze the people score in a different model. The result of this model is a table of the unique IDs with their resected people score.</p>
+<p>The applicants' ability to write a good application might influence the probability of success significantly, so we needed to find a way to measure this talent. The measure for this talent was called <em>People Score</em>. As there were more than 3000 different people working on the applications in the dataset, we decided analyze the people score in a different model. The result of this model is a table of the unique IDs with their respective People Score.</p>
 
-<p>The Team Model uses the output from the People Model and the 225 features describing the persons working on the application from the origial dataset. From this information several new feautred are designed and given as inut to the final model.</p>
+<p>As can be seen in Figure 2, the Team Model uses the output from the People Model and the 225 features describing the persons working on the application from the original dataset. From this information several new featured are designed and given as input to the final model.</p>
 
 <p><img src="https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/How%20the%20model%20was%20built.jpg" alt="How the model was built"></p>
 
@@ -95,21 +118,29 @@ Ended: 10:00 pm, Sunday 20 February 2011 UTC (69 total days)</p>
 <h1>
 <a id="grant-analysis" class="anchor" href="#grant-analysis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Grant Analysis</h1>
 
-<p>The final model predicts if a grant application will be accepted or not. A random forest with 3000 trees is used for this classification. The input variables are the combination of the output of the Team Model with the cleaned and supplemented data from the University of Melbourne.</p>
+<p>The final model predicts if a grant application will be accepted or not. A random forest with 3000 trees is used for this classification. The input variables are the combination of the output of the Team Model with the cleaned and rebuilt data from the University of Melbourne.</p>
 
 <p>In total the model uses 65 features, 14 of them are taken from the output of the Team Model. The rest of the features are either taken from the original competition dataset or directly engineered from it.</p>
 
-<p>The number of variables randomly sampled as candidates at each split was optimized and the optimum value found was 7.</p>
+<p>The number of variables randomly sampled as candidates at each split was optimized, and the optimum value found was 7.</p>
 
 <p>Computational time was about one minute.</p>
 
 <h1>
 <a id="results" class="anchor" href="#results" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Results</h1>
 
-<p>The model produces an area under the ROC of 91.4. This result would have placed us on rank 78 on the Kaggle Competition leaderboard. However as the competition was already over, we were not able to test our model on the official testing data. Instead we cut our testing set from the training data. 
+<p>The model produces an Area Under the Curve (AUC) of 0.914 as can be seen in Figure 3. This result would have placed us on rank 78 on the Kaggle Competition leaderboard (Figure 4). However as the competition was already over, we were not able to test our model on the official testing data. Instead we cut our testing set from the training data. 
 If we had been able to train this model on the full training data, we might have been able to achieve an even better result.</p>
 
-<p>The following table shows the confusion matrix with the real values as rows and the predicted values as columns.</p>
+<p><img src="https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/ROC%20plot%20and%20AUC%20%3D%200.914.png" alt="ROC plot and AUC = 0.914"></p>
+
+<p>Figure 3. ROC plot and AUC = 0.914.</p>
+
+<p><img src="https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/public%20leaderboard.jpg" alt="Screenshot of the public leaderboard"></p>
+
+<p>Figure 4. Kaggle's public leaderboard for this challenge.</p>
+
+<p>The following table (Table 1) shows the confusion matrix with the real values as rows and the predicted values as columns.</p>
 
 <p></p><table>
   <tr>
@@ -129,13 +160,15 @@ If we had been able to train this model on the full training data, we might have
   </tr>
 </table> 
 
+<p>Table 1. Confusion matrix.</p>
+
 <p>The model is quite good at finding the applications which will eventually get granted, even though it missclassifies some of the application which did not receive funding.</p>
 
 <p>The most important features were:</p>
 
 <ul>
-<li>Number of unsuccelsful applications of Team members</li>
-<li>Number of succesful applications of Team members</li>
+<li>Number of unsuccessful applications of Team members</li>
+<li>Number of successful applications of Team members</li>
 <li>Sponsor of the Grant</li>
 <li>Day of Month</li>
 <li>Month</li>
@@ -143,29 +176,9 @@ If we had been able to train this model on the full training data, we might have
 <li>Grant Category Code</li>
 </ul>
 
-<p>All these variables are intuitively related to the sucess of an application,bexcept for <em>Day of Month</em> and <em>Month</em>. A possible explanation for the high importance of these features is, that for many sponsors the probability of granting funding decreases to zero after reaching their budget. This makes it less likely for an application to be successful later in the months. </p>
+<p>All these variables are intuitively related to the success of an application,except for <em>Day of Month</em> and <em>Month</em>. A possible explanation for the high importance of these features is, that for many sponsors the probability of granting funding decreases to zero after reaching their budget. This makes it less likely for an application to be successful later in the months. </p>
 
-<p>Similar reasoning might explain the importance of the month of the application. At certain times of the year, their may be varying funding budgets and also a varying number of competing applications.</p>
-
-<h1>
-<a id="cleaning-the-data" class="anchor" href="#cleaning-the-data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Cleaning the Data</h1>
-
-<p>The original dataset from the University of Melbourne is formated quite ugly. There are 249 features, mainly because for every person working on a project there are 15 featurs to describe this person and the maximium team size is 15 people. So 225 of the 249 features describe the people who created the application. As many application were created by teams much smaller than 15 people, most of the columns are filled very scarcely.</p>
-
-<p>These 225 features were handled in the People and the Team Model, so the <em>cleaning_all.r</em> file just takes care of the first 24 features.</p>
-
-<p>The date column was properly formated and these new features were derived from it: Weekday, Month, Day and Month, Day of Month and Season.</p>
-
-<p>As there was a significant amount of missing values in the dataset, we had to find way to deal with them.</p>
-
-<p>For the feature <em>Contract Value Band</em>, which is a factrorial variable classifying the contract value into 14 levels, we filled the missing data with random samples from an empirical distribution of the existing data.</p>
-
-<p>For the columns <em>Grant Category Code</em> and <em>Sponsor Code</em> which are factorial variables as well, we were able to use a more accurate model. As both variables are significantly correlated with the <em>Contract Value Band</em>, we could use this information to create conditional empirical distributions for <em>Grant Category Code</em> and <em>Sponsor Code</em> depending on the <em>Contract Value Band</em>of the respective application.</p>
-
-<p>Each application has up to 5 <em>RFCD Codes</em>, which describe the university departments working on this project and up to 5 socioeconomic objectives in the <em>SEO Code</em> columns. For each of these ten columns there is an additional column showing the percentage of the project related to the respective department or scioeconomic objectve. As the majority of the application have a maximum of two departments and SEOs, most of these features are empty.
-To be able to use this information we created columns for each possible department and socioeconomic objective, stating respected percentage. This organization simplyfies the access to information greatly. instead of checking five different columns to see if the project is related to a certain department, you have to check just one. </p>
-
-<p>After the cleaning, the was split into a training, a testing and a validation set.</p>
+<p>Similar reasoning might explain the importance of the month of the application. At certain times of the year, their maybe varying funding budgets aswell as a varying number of competing applications.</p>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications">Kaggle challenge predict-grant-applications</a> is maintained by <a href="https://github.com/ricgu8086">ricgu8086</a>.</span>
