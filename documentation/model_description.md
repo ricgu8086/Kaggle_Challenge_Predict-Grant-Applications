@@ -1,4 +1,4 @@
-## Introduction ##
+*Intruduction*
 
 This project was done as a part of the Data Science Retreat batch 6.
 
@@ -31,6 +31,10 @@ Figure 1. Splitting data.
 
 ## Feature Analysis ##
 
+The applicants talent to write a good application might influence the probability of success significantly, so we needed to find a way to measure this talent. The measure for this talent was called *People Score*. As there were more than 3000 different people working on the applications in the dataset, we decided analyze the people score in a different model. The result of this model is a table of the unique IDs with their resected people score.
+
+The Team Model uses the output from the People Model and the 225 features describing the persons working on the application from the origial dataset. From this information several new feautred are designed and given as inut to the final model.
+
 ![How the model was built](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/How%20the%20model%20was%20built.jpg)
 
 Figure 2. Overview of our analysis on the presented features.
@@ -61,14 +65,72 @@ Ricardo's part
 
 # Grant Analysis #
 
-The awesome part
-<<<<<<< HEAD
-=======
+The final model predicts if a grant application will be accepted or not. A random forest with 3000 trees is used for this classification. The input variables are the combination of the output of the Team Model with the cleaned and supplemented data from the University of Melbourne.
 
-# Final model #
+In total the model uses 65 features, 14 of them are taken from the output of the Team Model. The rest of the features are either taken from the original competition dataset or directly engineered from it.
 
-## Results ##
+The number of variables randomly sampled as candidates at each split was optimized and the optimum value found was 7.
 
-As our results are not directly comparable, as we had less data
+Computational time was about one minute.
 
->>>>>>> db023128648616cd3cd4bd990423254f5f84481a
+# Results #
+
+The model produces an area under the ROC of 91.4. This result would have placed us on rank 78 on the Kaggle Competition leaderboard. However as the competition was already over, we were not able to test our model on the official testing data. Instead we cut our testing set from the training data. 
+If we had been able to train this model on the full training data, we might have been able to achieve an even better result.
+
+The following table shows the confusion matrix with the real values as rows and the predicted values as columns.
+
+ <table style="width:100%">
+  <tr>
+    <td></td>
+    <td>Granted</td>
+    <td>Not Granted</td>
+  </tr>
+  <tr>
+    <td>Granted</td>
+    <td>482</td>
+    <td>22</td>
+  </tr>
+  <tr>
+    <td>Not Granted</td>
+    <td>384</td>
+    <td>603</td>
+  </tr>
+</table> 
+
+The model is quite good at finding the applications which will eventually get granted, even though it missclassifies some of the application which did not receive funding.
+
+The most important features were:
+
+- Number of unsuccelsful applications of Team members
+- Number of succesful applications of Team members
+- Sponsor of the Grant
+- Day of Month
+- Month
+- Contract Value Band
+- Grant Category Code
+
+All these variables are intuitively related to the sucess of an application,bexcept for *Day of Month* and *Month*. A possible explanation for the high importance of these features is, that for many sponsors the probability of granting funding decreases to zero after reaching their budget. This makes it less likely for an application to be successful later in the months. 
+
+Similar reasoning might explain the importance of the month of the application. At certain times of the year, their may be varying funding budgets and also a varying number of competing applications.
+
+
+
+# Cleaning the Data #
+
+The original dataset from the University of Melbourne is formated quite ugly. There are 249 features, mainly because for every person working on a project there are 15 featurs to describe this person and the maximium team size is 15 people. So 225 of the 249 features describe the people who created the application. As many application were created by teams much smaller than 15 people, most of the columns are filled very scarcely.
+
+These 225 features were handled in the People and the Team Model, so the *cleaning_all.r* file just takes care of the first 24 features.
+
+The date column was properly formated and these new features were derived from it: Weekday, Month, Day and Month, Day of Month and Season.
+
+As there was a significant amount of missing values in the dataset, we had to find way to deal with them.
+
+For the feature *Contract Value Band*, which is a factrorial variable classifying the contract value into 14 levels, we filled the missing data with random samples from an empirical distribution of the existing data.
+
+For the columns *Grant Category Code* and *Sponsor Code* which are factorial variables as well, we were able to use a more accurate model. As both variables are significantly correlated with the *Contract Value Band*, we could use this information to create conditional empirical distributions for *Grant Category Code* and *Sponsor Code* depending on the *Contract Value Band*of the respective application.
+
+Each application has up to 5 *RFCD Codes*, which describe the university departments working on this project and up to 5 socioeconomic objectives in the *SEO Code* columns. For each of these ten columns there is an additional column showing the percentage of the project related to the respective department or scioeconomic objectve. As the majority of the application have a maximum of two departments and SEOs, most of these features are empty.
+To be able to use this information we created columns for each possible department and socioeconomic objective, stating respected percentage. This organization simplyfies the access to information greatly. instead of checking five different columns to see if the project is related to a certain department, you have to check just one. 
+
+After the cleaning, the was split into a training, a testing and a validation set.
