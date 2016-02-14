@@ -17,11 +17,13 @@ You can find the exact ids used to do the splitting in the following files:
  
 
 ![Splitting data](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/Splitting.jpg)
+
 Figure 1. Splitting data.
 
 ## Feature Analysis ##
 
 ![How the model was built](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/How%20the%20model%20was%20built.jpg)
+
 Figure 2. Overview of our analysis on the presented features.
 
 # People Analysis #
