@@ -31,6 +31,10 @@ Figure 1. Splitting data.
 
 ## Data Analysis ##
 
+The applicants talent to write a good application might influence the probability of success significantly, so we needed to find a way to measure this talent. The measure for this talent was called *People Score*. As there were more than 3000 different people working on the applications in the dataset, we decided analyze the people score in a different model. The result of this model is a table of the unique IDs with their resected people score.
+
+The Team Model uses the output from the People Model and the 225 features describing the persons working on the application from the origial dataset. From this information several new feautred are designed and given as inut to the final model.
+
 ![How the model was built](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/How%20the%20model%20was%20built.jpg)
 
 Figure 2. Overview of our analysis on the presented features.
@@ -42,6 +46,10 @@ The people model takes the data output from *cleaning_all.R* and uses it to buil
 This is built from a for loop that takes each set of variables from each person on each row and then gives it its own row on a new table, alongside whether the application succeeded or failed.
 
 This table is then cleaned to make it ready for logistic regression, through methods such as changing NAs to seperate factors, changing non factor variables to factor variables and removing NA people ID rows.
+
+Initially, the table contained too large an amount of factors, with each person ID and all possible departments and faculties. We reduced the amount of factors by lumping the least important factors together.
+
+This was done as the  model function used had hard limits on the number of factors that could be used  as inputs and those factor levels that had the least people involved were deemed to contain the least predictive information, making a good target for simplifying the table.
 
 This data is then saved in the data folder as *peopleTable.RData*
 
@@ -65,33 +73,54 @@ The final model predicts if a grant application will be accepted or not. A rando
 
 In total the model uses 65 features, 14 of them are taken from the output of the Team Model. The rest of the features are either taken from the original competition dataset or directly engineered from it.
 
-The model produces an area under the ROC of 91.4. This result would have placed us on rank 78 on the Kaggle Competition leaderboard, however as the competition was already over, we were not able to test our model on the official testing data. Instead we cut our testing set from the training data. 
+The number of variables randomly sampled as candidates at each split was optimized and the optimum value found was 7.
+
+Computational time was about one minute.
+
+# Results #
+
+The model produces an area under the ROC of 91.4. This result would have placed us on rank 78 on the Kaggle Competition leaderboard. However as the competition was already over, we were not able to test our model on the official testing data. Instead we cut our testing set from the training data. 
 If we had been able to train this model on the full training data, we might have been able to achieve an even better result.
 
-|  Prediction | Granted  | not Granted |
-|-------------|----------|-------------|
-|  Granted    |    482   |      88     |
-|  Not Granted|    384   |     603     |
+The following table shows the confusion matrix with the real values as rows and the predicted values as columns.
 
-As our results are not directly comparable, as we had less data
+ <table style="width:100%">
+  <tr>
+    <td></td>
+    <td>Granted</td>
+    <td>Not Granted</td>
+  </tr>
+  <tr>
+    <td>Granted</td>
+    <td>482</td>
+    <td>22</td>
+  </tr>
+  <tr>
+    <td>Not Granted</td>
+    <td>384</td>
+    <td>603</td>
+  </tr>
+</table> 
 
-The model is quite good at finding the applications which will eventually get granted, even though it missclassifies some of the application which did ot receive funding.
+The model is quite good at finding the applications which will eventually get granted, even though it missclassifies some of the application which did not receive funding.
 
 The most important features were:
 
-Number of unsuccelsful applications of Team members
-Number of succesful applications of Team members
-Sponsor of the grant
-Day of Month
-Month
-Contract Value Band
-Grant Category Code
+- Number of unsuccelsful applications of Team members
+- Number of succesful applications of Team members
+- Sponsor of the Grant
+- Day of Month
+- Month
+- Contract Value Band
+- Grant Category Code
 
-All these variables are intuitively related to the sucess of an application,except for *Day of Month* and *Month*. A possible explanation for the high importance of these features is, that for many sponsors the probability of granting funding decreases to zero after reaching their budget. This makes it less likely for an application to be successful later in the months. Similar reasoning might explain the importance of the month of the application. At certain times of the year, their may be varying funding budgets and also a varying number of competing applications.
+All these variables are intuitively related to the sucess of an application,bexcept for *Day of Month* and *Month*. A possible explanation for the high importance of these features is, that for many sponsors the probability of granting funding decreases to zero after reaching their budget. This makes it less likely for an application to be successful later in the months. 
+
+Similar reasoning might explain the importance of the month of the application. At certain times of the year, their may be varying funding budgets and also a varying number of competing applications.
 
 
 
-** Cleaning the Data **
+# Cleaning the Data #
 
 The original dataset from the University of Melbourne is formated quite ugly. There are 249 features, mainly because for every person working on a project there are 15 featurs to describe this person and the maximium team size is 15 people. So 225 of the 249 features describe the people who created the application. As many application were created by teams much smaller than 15 people, most of the columns are filled very scarcely.
 
