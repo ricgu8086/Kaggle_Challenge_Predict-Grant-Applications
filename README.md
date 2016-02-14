@@ -30,9 +30,9 @@ As we are a multidisciplinar team, with different backgrounds (engineering, econ
 ----------
 
 
-***This is the result we get in just 3 days:***
+***This is the result we got in just 3 days:***
 
 ![ROC Curve, AUC = 0.914](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Model%20and%20Results/Rplot.png)
 
 
-If you want to learn how we achieved it, [click here](https://github.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/blob/master/documentation/model_description.md "Process description")
+If you want to learn how we achieved it, [click here](http://ricgu8086.github.io/Kaggle_Challenge_Predict-Grant-Applications/)
