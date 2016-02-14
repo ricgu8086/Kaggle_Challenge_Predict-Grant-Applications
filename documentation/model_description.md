@@ -43,6 +43,10 @@ This is built from a for loop that takes each set of variables from each person 
 
 This table is then cleaned to make it ready for logistic regression, through methods such as changing NAs to seperate factors, changing non factor variables to factor variables and removing NA people ID rows.
 
+Initially, the table contained too large an amount of factors, with each person ID and all possible departments and faculties. We reduced the amount of factors by lumping the least important factors together.
+
+This was done as the  model function used had hard limits on the number of factors that could be used  as inputs and those factor levels that had the least people involved were deemed to contain the least predictive information, making a good target for simplifying the table.
+
 This data is then saved in the data folder as *peopleTable.RData*
 
 This is then used by the *people_model.R* script to build a glm() binomial logistic regression model using each persons variables to predict their grant application status success. The coefficients from this model associated with each person ID is then used as the 'people score' in the Team Model.
