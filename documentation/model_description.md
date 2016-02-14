@@ -1,4 +1,4 @@
-*Intruduction*
+## Introduction ##
 
 This project was done as a part of the Data Science Retreat batch 6.
 
@@ -29,7 +29,7 @@ You can find the exact ids used to do the splitting in the following files:
 
 Figure 1. Splitting data.
 
-## Feature Analysis ##
+## Data Analysis ##
 
 ![How the model was built](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/How%20the%20model%20was%20built.jpg)
 
@@ -51,9 +51,13 @@ This is then used by the *people_model.R* script to build a glm() binomial logis
 
 # Team Analysis #
 
-Ricardo's part
+This part of the data consist on evaluate how strong a team is. Along the time, the researchers move from one department to another, ask for different grants forming subgroups within the same department, so we need to evaluate a team as a combination of researchers that actually applied to an specific grant.
 
+The 'people score' obtained from the previous step include negative values, positive values, and comprises a non-defined range. Hence the first step is to normalize them in the range [0,1]. In order to build the feature called "People.score" in this part, we sum the normalized score of all the participants that applied for a specific grant. We also computed, "Avg.People.score" to ensure that teams with one top researcher does not be outnumbered by big teams with lower profiles.
 
+Other features included where "Dif.countries" that takes into account how many different countries can be found in a team, "Departments" the ammount of different departmenst involved (as they will have different viewpoints that can better tackle unseen problems) and "Perc_non_australian" to take into account that many times a fraction of the grants are kept for integrate inmigrants and people from abroad in the society. 
+
+This was a non exhaustive list of the features. More information can be found in the python code.
 
 # Grant Analysis #
 
