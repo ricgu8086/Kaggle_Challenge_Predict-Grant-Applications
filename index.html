@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="UTF-8">
+    <title>Kaggle challenge predict-grant-applications by ricgu8086</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" href="stylesheets/normalize.css" media="screen">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,700' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" type="text/css" href="stylesheets/stylesheet.css" media="screen">
+    <link rel="stylesheet" type="text/css" href="stylesheets/github-light.css" media="screen">
+  </head>
+  <body>
+    <section class="page-header">
+      <h1 class="project-name">Kaggle challenge predict-grant-applications</h1>
+      <h2 class="project-tagline">This is a competition for Data Science Retreat program 2016 based on a Kaggle Challenge </h2>
+      <a href="https://github.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications" class="btn">View on GitHub</a>
+      <a href="https://github.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/zipball/master" class="btn">Download .zip</a>
+      <a href="https://github.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/tarball/master" class="btn">Download .tar.gz</a>
+    </section>
+
+    <section class="main-content">
+      <h2>
+<a id="introduction" class="anchor" href="#introduction" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Introduction</h2>
+
+<p>This project was done as a part of the Data Science Retreat batch 6.</p>
+
+<p>The original competition ran during the dates below.</p>
+
+<p>Started: 9:22 am, Monday 13 December 2010 UTC
+Ended: 10:00 pm, Sunday 20 February 2011 UTC (69 total days)</p>
+
+<p>We however, completed our approach in a 3 day period.</p>
+
+<p>Here we will describe our approach to creating a model.</p>
+
+<p>The first problem we encountered with this dataset was that each row, which corresponded to each individual grant application, would have multiple columns to list aspects within a variable. For example, there was room for 15 people for each project, with each person being randomly allocated to either person 1 or person 2 columns in each row.</p>
+
+<p>This was an issue, as a model would be unable to find trends in data if variables were split across columns. So to combat this we decided to create two smaller models to sum up the information contained within each person and their team. The first being the people model and the second being the team model.</p>
+
+<h1>
+<a id="splitting" class="anchor" href="#splitting" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Splitting</h1>
+
+<p>Because of the test data available lacked the <em>Grant.Status</em> field, i.e. the target we want to predict, we arrange our labeled data (training dataset) in the following way: in the first round,we take data from group 1 (see Figure 1) for training, and data from group 2 for validation (parameter tuning). After we achieved one model we were confident on it, we move to the second round, where we use data from group 1 and group 2 for training (keeping the same parameters learned) and used data from group 3 for testing. The predictions obtained in this group 3, are the results presented in the Results section.</p>
+
+<p>You can find the exact ids used to do the splitting in the following files:</p>
+
+<ol>
+<li><em>testing_ids.txt</em></li>
+<li><em>training2_ids.txt</em></li>
+</ol>
+
+<p><img src="https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/Splitting.jpg" alt="Splitting data"></p>
+
+<p>Figure 1. Splitting data.</p>
+
+<h2>
+<a id="data-analysis" class="anchor" href="#data-analysis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Data Analysis</h2>
+
+<p>The applicants talent to write a good application might influence the probability of success significantly, so we needed to find a way to measure this talent. The measure for this talent was called <em>People Score</em>. As there were more than 3000 different people working on the applications in the dataset, we decided analyze the people score in a different model. The result of this model is a table of the unique IDs with their resected people score.</p>
+
+<p>The Team Model uses the output from the People Model and the 225 features describing the persons working on the application from the origial dataset. From this information several new feautred are designed and given as inut to the final model.</p>
+
+<p><img src="https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/How%20the%20model%20was%20built.jpg" alt="How the model was built"></p>
+
+<p>Figure 2. Overview of our analysis on the presented features.</p>
+
+<h1>
+<a id="people-analysis" class="anchor" href="#people-analysis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>People Analysis</h1>
+
+<p>The people model takes the data output from <em>cleaning_all.R</em> and uses it to build a table that has one row for each person ID/project combination, alongside each individual variable that correspond to each person.</p>
+
+<p>This is built from a for loop that takes each set of variables from each person on each row and then gives it its own row on a new table, alongside whether the application succeeded or failed.</p>
+
+<p>This table is then cleaned to make it ready for logistic regression, through methods such as changing NAs to seperate factors, changing non factor variables to factor variables and removing NA people ID rows.</p>
+
+<p>Initially, the table contained too large an amount of factors, with each person ID and all possible departments and faculties. We reduced the amount of factors by lumping the least important factors together.</p>
+
+<p>This was done as the  model function used had hard limits on the number of factors that could be used  as inputs and those factor levels that had the least people involved were deemed to contain the least predictive information, making a good target for simplifying the table.</p>
+
+<p>This data is then saved in the data folder as <em>peopleTable.RData</em></p>
+
+<p>This is then used by the <em>people_model.R</em> script to build a glm() binomial logistic regression model using each persons variables to predict their grant application status success. The coefficients from this model associated with each person ID is then used as the 'people score' in the Team Model.</p>
+
+<h1>
+<a id="team-analysis" class="anchor" href="#team-analysis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Team Analysis</h1>
+
+<p>This part of the data consist on evaluate how strong a team is. Along the time, the researchers move from one department to another, ask for different grants forming subgroups within the same department, so we need to evaluate a team as a combination of researchers that actually applied to an specific grant.</p>
+
+<p>The 'people score' obtained from the previous step include negative values, positive values, and comprises a non-defined range. Hence the first step is to normalize them in the range [0,1]. In order to build the feature called "People.score" in this part, we sum the normalized score of all the participants that applied for a specific grant. We also computed, "Avg.People.score" to ensure that teams with one top researcher does not be outnumbered by big teams with lower profiles.</p>
+
+<p>Other features included where "Dif.countries" that takes into account how many different countries can be found in a team, "Departments" the ammount of different departmenst involved (as they will have different viewpoints that can better tackle unseen problems) and "Perc_non_australian" to take into account that many times a fraction of the grants are kept for integrate inmigrants and people from abroad in the society. </p>
+
+<p>This was a non exhaustive list of the features. More information can be found in the python code.</p>
+
+<h1>
+<a id="grant-analysis" class="anchor" href="#grant-analysis" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Grant Analysis</h1>
+
+<p>The final model predicts if a grant application will be accepted or not. A random forest with 3000 trees is used for this classification. The input variables are the combination of the output of the Team Model with the cleaned and supplemented data from the University of Melbourne.</p>
+
+<p>In total the model uses 65 features, 14 of them are taken from the output of the Team Model. The rest of the features are either taken from the original competition dataset or directly engineered from it.</p>
+
+<p>The number of variables randomly sampled as candidates at each split was optimized and the optimum value found was 7.</p>
+
+<p>Computational time was about one minute.</p>
+
+<h1>
+<a id="results" class="anchor" href="#results" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Results</h1>
+
+<p>The model produces an area under the ROC of 91.4. This result would have placed us on rank 78 on the Kaggle Competition leaderboard. However as the competition was already over, we were not able to test our model on the official testing data. Instead we cut our testing set from the training data. 
+If we had been able to train this model on the full training data, we might have been able to achieve an even better result.</p>
+
+<p>The following table shows the confusion matrix with the real values as rows and the predicted values as columns.</p>
+
+<p></p><table>
+  <tr>
+    <td></td>
+    <td>Granted</td>
+    <td>Not Granted</td>
+  </tr>
+  <tr>
+    <td>Granted</td>
+    <td>482</td>
+    <td>22</td>
+  </tr>
+  <tr>
+    <td>Not Granted</td>
+    <td>384</td>
+    <td>603</td>
+  </tr>
+</table> 
+
+<p>The model is quite good at finding the applications which will eventually get granted, even though it missclassifies some of the application which did not receive funding.</p>
+
+<p>The most important features were:</p>
+
+<ul>
+<li>Number of unsuccelsful applications of Team members</li>
+<li>Number of succesful applications of Team members</li>
+<li>Sponsor of the Grant</li>
+<li>Day of Month</li>
+<li>Month</li>
+<li>Contract Value Band</li>
+<li>Grant Category Code</li>
+</ul>
+
+<p>All these variables are intuitively related to the sucess of an application,bexcept for <em>Day of Month</em> and <em>Month</em>. A possible explanation for the high importance of these features is, that for many sponsors the probability of granting funding decreases to zero after reaching their budget. This makes it less likely for an application to be successful later in the months. </p>
+
+<p>Similar reasoning might explain the importance of the month of the application. At certain times of the year, their may be varying funding budgets and also a varying number of competing applications.</p>
+
+<h1>
+<a id="cleaning-the-data" class="anchor" href="#cleaning-the-data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Cleaning the Data</h1>
+
+<p>The original dataset from the University of Melbourne is formated quite ugly. There are 249 features, mainly because for every person working on a project there are 15 featurs to describe this person and the maximium team size is 15 people. So 225 of the 249 features describe the people who created the application. As many application were created by teams much smaller than 15 people, most of the columns are filled very scarcely.</p>
+
+<p>These 225 features were handled in the People and the Team Model, so the <em>cleaning_all.r</em> file just takes care of the first 24 features.</p>
+
+<p>The date column was properly formated and these new features were derived from it: Weekday, Month, Day and Month, Day of Month and Season.</p>
+
+<p>As there was a significant amount of missing values in the dataset, we had to find way to deal with them.</p>
+
+<p>For the feature <em>Contract Value Band</em>, which is a factrorial variable classifying the contract value into 14 levels, we filled the missing data with random samples from an empirical distribution of the existing data.</p>
+
+<p>For the columns <em>Grant Category Code</em> and <em>Sponsor Code</em> which are factorial variables as well, we were able to use a more accurate model. As both variables are significantly correlated with the <em>Contract Value Band</em>, we could use this information to create conditional empirical distributions for <em>Grant Category Code</em> and <em>Sponsor Code</em> depending on the <em>Contract Value Band</em>of the respective application.</p>
+
+<p>Each application has up to 5 <em>RFCD Codes</em>, which describe the university departments working on this project and up to 5 socioeconomic objectives in the <em>SEO Code</em> columns. For each of these ten columns there is an additional column showing the percentage of the project related to the respective department or scioeconomic objectve. As the majority of the application have a maximum of two departments and SEOs, most of these features are empty.
+To be able to use this information we created columns for each possible department and socioeconomic objective, stating respected percentage. This organization simplyfies the access to information greatly. instead of checking five different columns to see if the project is related to a certain department, you have to check just one. </p>
+
+<p>After the cleaning, the was split into a training, a testing and a validation set.</p>
+
+      <footer class="site-footer">
+        <span class="site-footer-owner"><a href="https://github.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications">Kaggle challenge predict-grant-applications</a> is maintained by <a href="https://github.com/ricgu8086">ricgu8086</a>.</span>
+
+        <span class="site-footer-credits">This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the <a href="https://github.com/jasonlong/cayman-theme">Cayman theme</a> by <a href="https://twitter.com/jasonlong">Jason Long</a>.</span>
+      </footer>
+
+    </section>
+
+  
+  </body>
+</html>
