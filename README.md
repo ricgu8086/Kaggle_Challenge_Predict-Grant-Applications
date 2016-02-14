@@ -34,3 +34,5 @@ As we are a multidisciplinar team, with different backgrounds (engineering, econ
 
 ![ROC Curve, AUC = 0.914](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Model%20and%20Results/Rplot.png)
 
+
+If you want to learn how we achieved it, [click here](https://github.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/blob/master/documentation/model_description.md "Process description")
