@@ -21,7 +21,7 @@ people_model_df = pd.read_csv(path_people)
 
 
 
-team_cols = ["People.score", "A..papers", "A.papers", "B.papers", "C.papers",\
+team_cols = ["People.score", "Avg.People.score", "A..papers", "A.papers", "B.papers", "C.papers",\
              "Dif.countries", "Number.people", "PHD", "Max.years.univ", "Grants.succ",\
              "Grants.unsucc", "Departments", "Perc_non_australian"] #All are sum unless specified in the name
 
@@ -163,6 +163,12 @@ def rep(x):
 
 b = df[interest_cols].apply(rep)
 team_df[outp] = b.apply(lambda x: np.sum(x), axis =1)
+
+
+
+# Get the average score so a big team with non-top researchers does not get more score than small with top ones
+team_df["Avg.People.score"] = team_df["People.score"] / team_df["Number.people"].astype(float)
+team_df["Avg.People.score"] = team_df["Avg.People.score"].replace(np.inf, 0)
 
 # Done, saving
 ##############

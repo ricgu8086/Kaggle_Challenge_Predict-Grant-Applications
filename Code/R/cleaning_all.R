@@ -145,7 +145,12 @@ for (name in seo.names){
 }
 
 
-
+## Turn Charaters into factors
+for (column in names(data2)){
+  if (is.character(unlist(data2[column])) == TRUE) {
+    data2[column] <- as.factor(unlist(data2[column]))
+  }
+}
 
 
 ## Training, Testing und Validation Split
