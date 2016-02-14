@@ -1,10 +1,19 @@
 ## Introduction ##
 
-People have more than 2 months, we have 3 days
+This project was done as a part of the Data Science Retreat batch 6.
 
+The original competition ran during the dates below.
 
 Started: 9:22 am, Monday 13 December 2010 UTC
-Ended: 10:00 pm, Sunday 20 February 2011 UTC (69 total days) 
+Ended: 10:00 pm, Sunday 20 February 2011 UTC (69 total days)
+
+We however, completed our approach in a 3 day period.
+
+Here we will describe our approach to creating a model.
+
+The first problem we encountered with this dataset was that each row, which corresponded to each individual grant application, would have multiple columns to list aspects within a variable. For example, there was room for 15 people for each project, with each person being randomly allocated to either person 1 or person 2 columns in each row.
+
+This was an issue, as a model would be unable to find trends in data if variables were split across columns. So to combat this we decided to create two smaller models to sum up the information contained within each person and their team. The first being the people model and the second being the team model.
 
 # Splitting #
 
@@ -14,7 +23,7 @@ You can find the exact ids used to do the splitting in the following files:
 
 1. *testing_ids.txt*
 2. *training2_ids.txt*
- 
+
 
 ![Splitting data](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/Splitting.jpg)
 Figure 1. Splitting data.
