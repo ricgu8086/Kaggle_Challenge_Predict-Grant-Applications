@@ -1,21 +1,61 @@
 *Intruduction*
 
+This project was done as a part of the Data Science Retreat batch 6.
 
-bla bla bla
+The original competition ran during the dates below.
+
+Started: 9:22 am, Monday 13 December 2010 UTC
+Ended: 10:00 pm, Sunday 20 February 2011 UTC (69 total days)
+
+We however, completed our approach in a 3 day period.
+
+Here we will describe our approach to creating a model.
+
+The first problem we encountered with this dataset was that each row, which corresponded to each individual grant application, would have multiple columns to list aspects within a variable. For example, there was room for 15 people for each project, with each person being randomly allocated to either person 1 or person 2 columns in each row.
+
+This was an issue, as a model would be unable to find trends in data if variables were split across columns. So to combat this we decided to create two smaller models to sum up the information contained within each person and their team. The first being the people model and the second being the team model.
+
+# Splitting #
+
+Because of the test data available lacked the *Grant.Status* field, i.e. the target we want to predict, we arrange our labeled data (training dataset) in the following way: in the first round,we take data from group 1 (see Figure 1) for training, and data from group 2 for validation (parameter tuning). After we achieved one model we were confident on it, we move to the second round, where we use data from group 1 and group 2 for training (keeping the same parameters learned) and used data from group 3 for testing. The predictions obtained in this group 3, are the results presented in the Results section.
+
+You can find the exact ids used to do the splitting in the following files:
+
+1. *testing_ids.txt*
+2. *training2_ids.txt*
 
 
-*People Model*
+![Splitting data](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/Splitting.jpg)
 
-John`s part
+Figure 1. Splitting data.
+
+## Feature Analysis ##
+
+![How the model was built](https://raw.githubusercontent.com/ricgu8086/Kaggle_Challenge_Predict-Grant-Applications/master/Documentation/Pic/How%20the%20model%20was%20built.jpg)
+
+Figure 2. Overview of our analysis on the presented features.
+
+# People Analysis #
+
+The people model takes the data output from *cleaning_all.R* and uses it to build a table that has one row for each person ID/project combination, alongside each individual variable that correspond to each person.
+
+This is built from a for loop that takes each set of variables from each person on each row and then gives it its own row on a new table, alongside whether the application succeeded or failed.
+
+This table is then cleaned to make it ready for logistic regression, through methods such as changing NAs to seperate factors, changing non factor variables to factor variables and removing NA people ID rows.
+
+This data is then saved in the data folder as *peopleTable.RData*
+
+This is then used by the *people_model.R* script to build a glm() binomial logistic regression model using each persons variables to predict their grant application status success. The coefficients from this model associated with each person ID is then used as the 'people score' in the Team Model.
 
 
 
-*Team Modlel*
+# Team Analysis #
 
 Ricardo's part
 
 
-**Final Model**
+
+# Grant Analysis #
 
 The final model predicts if a grant application will be accepted or not. A random forest with 3000 trees is used for this classification. The input variables are the combination of the output of the Team Model with the cleaned and supplemented data from the University of Melbourne.
 
@@ -29,6 +69,7 @@ If we had been able to train this model on the full training data, we might have
 |  Granted    |    482   |      88     |
 |  Not Granted|    384   |     603     |
 
+As our results are not directly comparable, as we had less data
 
 The model is quite good at finding the applications which will eventually get granted, even though it missclassifies some of the application which did ot receive funding.
 
