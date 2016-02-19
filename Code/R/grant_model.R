@@ -52,7 +52,7 @@ acc_all
 importance <- rf_all$importance
 
 # Find boptimal numbers of Split-Variables at each node
-bestmtry <- tuneRF(train.rf[-1],train$Grant.Status, mtryStart = 7, ntreeTry=800, stepFactor=1.1, improve=0.001, trace=TRUE, plot=TRUE, doBest=FALSE)
+bestmtry <- tuneRF(train.rf_all[-1],train$Grant.Status, mtryStart = 7, ntreeTry=800, stepFactor=1.1, improve=0.001, trace=TRUE, plot=TRUE, doBest=FALSE)
 
 
 ### Feature Selection
@@ -113,39 +113,3 @@ save(tree, file=".//..//..//Data//RData//tree91.RData")
 #------------------------------------------------------------------------------------------------------------------------------
 
 
-
-
-#### SVM
-# Select variables
-#variables <- colnames(select(train, Grant.Status, Contract.Value.Band, C.papers))
-variables <- colnames(select(train, Grant.Status, Grant.Category.Code, Contract.Value.Band, starts_with("Dep."), starts_with("Seob."),
-                                 People.score, Avg.People.score, A..papers, A.papers, B.papers, C.papers, Dif.countries, Number.people, PHD, Max.years.univ, Grants.succ,
-                                 Grants.unsucc, Departments, Perc_non_australian, Season, SC.Group, Weekday, Month, Day.of.Month))
-train.svm.var <- select_(train, .dots = variables)
-test.svm.var <- select_(test, .dots = variables)
-
-# Scale Parameters
-num.names <- colnames(train.svm.var %>% select(which(sapply(.,is.numeric))))
-range01 <- function(x){(x-min(x))/(max(x)-min(x))}
-train.svm <- mutate_each_(train.svm.var, funs(range01),vars=num.names)
-test.svm <- mutate_each_(test.svm.var, funs(range01),vars=num.names)
-
-
-svm.model <- svm(Grant.Status~., data=train.svm, cross=3, probability=TRUE)
-
-
-svm.pr.class <- predict(svm, newdata=test.svm)
-t.svm <- table(test.svm$Grant.Status, svm.pr.class)
-svm.acc <- (t.svm[1,1] + t.svm[2,2])/sum(t.svm)
-cat("SVM Accuracy over test set: ", svm.acc, "\n")
-
-svm.pr.tr <- predict(svm, newdata=train.svm)
-t.svm.tr <- table(train.svm$Grant.Status, svm.pr.tr)
-svm.acc.tr <- (t.svm.tr[1,1] + t.svm.tr[2,2])/sum(t.svm.tr)
-cat("SVM Accuracy over training set: ", svm.acc.tr, "\n")
-
-#AUC
-svm.pr = predict(svm, type="prob", test.svm)[,2]
-svm.pred = prediction(svm.pr, test$Grant.Status)
-svm.perf = performance(svm.pred, "tpr", "fpr")
-svm.auc <- as.numeric(performance(svm.pred, "auc")@y.values)

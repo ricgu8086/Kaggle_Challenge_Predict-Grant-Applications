@@ -110,7 +110,7 @@ Figure 3. ROC plot and AUC = 0.914.
 
 Figure 4. Kaggle's public leaderboard for this challenge.
 
-The following table (Table 1) shows the confusion matrix with the real values as rows and the predicted values as columns.
+The following table (Table 1) shows the confusion matrix with the of the validation set real values as rows and the predicted values as columns.
 
  <table style="width:100%">
   <tr>
@@ -120,13 +120,13 @@ The following table (Table 1) shows the confusion matrix with the real values as
   </tr>
   <tr>
     <td>Granted</td>
-    <td>482</td>
-    <td>22</td>
+    <td>153</td>
+    <td>36</td>
   </tr>
   <tr>
     <td>Not Granted</td>
-    <td>384</td>
-    <td>603</td>
+    <td>52</td>
+    <td>277</td>
   </tr>
 </table> 
 
